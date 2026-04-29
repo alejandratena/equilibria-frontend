@@ -30,6 +30,13 @@ const useFlowsheetStore = create((set) => ({
   addNode: (node) =>
     set((state) => ({ nodes: [...state.nodes, node] })),
 
+  updateNodeData: (nodeId, changes) =>
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, ...changes } } : n
+      ),
+    })),
+
   // Setters
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),

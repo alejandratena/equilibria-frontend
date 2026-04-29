@@ -34,11 +34,27 @@ function FlowCanvas() {
     const op = unitOperations.find((o) => o.nodeType === nodeType)
     const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
 
+    const defaults = {
+      feedTank: {
+        feedMassFlow: '100',
+        feedTemperature: '85',
+        feedPressure: '101.3',
+        waterFraction: '0.5',
+        ethanolFraction: '0.5',
+      },
+      distillationColumn: {
+        distillateTemperature: '78',
+        bottomsTemperature: '100',
+        columnPressure: '101.3',
+        waterToDistillate: '0.1',
+        ethanolToDistillate: '0.9',
+      },
+    }
     const newNode = {
       id: crypto.randomUUID(),
       type: nodeType,
       position,
-      data: { label: op?.label ?? nodeType },
+      data: { label: op?.label ?? nodeType, ...(defaults[nodeType] ?? {}) },
     }
 
     addNode(newNode)

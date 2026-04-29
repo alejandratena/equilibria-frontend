@@ -1,11 +1,21 @@
-import { useSimulation } from '../../hooks/useSimulation'
 import { useFlowsheet } from '../../hooks/useFlowsheet'
+import { useFlowsheetStore } from '../../store/flowsheetStore'
+import { useSimulation } from '../../hooks/useSimulation'
 
 export default function PropertyPanel() {
-  const { inputs, updateInput, runSimulation, isRunning, simulationResult, error } = useSimulation()
   const { selectedNode } = useFlowsheet()
+  const updateNodeData = useFlowsheetStore((s) => s.updateNodeData)
+  const isRunning = useFlowsheetStore((s) => s.isRunning)
+  const simulationResult = useFlowsheetStore((s) => s.simulationResult)
+  const error = useFlowsheetStore((s) => s.error)
+  const { runSimulation } = useSimulation()
 
   const nodeType = selectedNode?.type ?? null
+
+  function handleChange(field, value) {
+    if (!selectedNode) return
+    updateNodeData(selectedNode.id, { [field]: value })
+  }
 
   return (
     <aside
@@ -53,9 +63,9 @@ export default function PropertyPanel() {
               <input
                 type="text"
                 inputMode="decimal"
-                value={inputs[field]}
+                value={selectedNode.data[field] ?? ''}
                 onFocus={(e) => e.target.select()}
-                onChange={(e) => updateInput(field, e.target.value)}
+                onChange={(e) => handleChange(field, e.target.value)}
                 className="w-20 text-xs text-right px-2 py-1 rounded"
                 style={{
                   backgroundColor: 'var(--bg-surface)',
@@ -89,9 +99,9 @@ export default function PropertyPanel() {
               <input
                 type="text"
                 inputMode="decimal"
-                value={inputs[field]}
+                value={selectedNode.data[field] ?? ''}
                 onFocus={(e) => e.target.select()}
-                onChange={(e) => updateInput(field, e.target.value)}
+                onChange={(e) => handleChange(field, e.target.value)}
                 className="w-20 text-xs text-right px-2 py-1 rounded"
                 style={{
                   backgroundColor: 'var(--bg-surface)',
@@ -104,7 +114,7 @@ export default function PropertyPanel() {
         </div>
       )}
 
-      {/* Condenser / Reboiler / Heat Exchanger — no inputs yet */}
+      {/* Condenser / Reboiler / Heat Exchanger */}
       {(nodeType === 'condenser' || nodeType === 'reboiler' || nodeType === 'heatExchanger') && (
         <div className="p-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -113,7 +123,7 @@ export default function PropertyPanel() {
         </div>
       )}
 
-      {/* Run Button — only when distillation column is selected */}
+      {/* Run Button */}
       {nodeType === 'distillationColumn' && (
         <div className="p-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <button
